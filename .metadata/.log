@@ -97,3 +97,11 @@ Contains: Missing requirement: DevStyle with CodeTogether Bundle 1.11.0.20200717
 !MESSAGE Software being installed: DevStyle with CodeTogether Bundle 1.11.0.202007171537 (com.genuitec.eclipse.theming.feature.feature.group 1.11.0.202007171537)
 !SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2020-11-24 17:03:40.695
 !MESSAGE Missing requirement: DevStyle with CodeTogether Bundle 1.11.0.202007171537 (com.genuitec.eclipse.theming.feature.feature.group 1.11.0.202007171537) requires 'com.genuitec.eclipse.codetogether.feature.feature.group 1.0.0' but it could not be found
+
+!ENTRY org.eclipse.ui.ide 4 4 2020-11-24 17:05:50.628
+!MESSAGE Problems saving workspace
+
+!ENTRY org.eclipse.ui.ide 2 1 2020-11-24 17:05:50.628
+!MESSAGE Problems occurred while trying to save the state of the workbench.
+!SUBENTRY 1 org.eclipse.core.resources 2 234 2020-11-24 17:05:50.628
+!MESSAGE The project description file (.project) for 'pixel-run' was missing.  This file contains important information about the project.  A new project description file has been created, but some information about the project may have been lost.
