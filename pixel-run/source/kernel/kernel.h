@@ -39,13 +39,13 @@ typedef struct
     kernel_event_id_t   id;
 } kernel_event_t;
 
-// Kernel available timers
-typedef enum 
-{
-	KERNEL_TIMER,
-	KERNEL_TIMER_FPS,
-	KERNEL_TIMER_COUNT
-} kernel_timer_t;
+// // Kernel available timers
+// // typedef enum 
+// // {
+// // 	KERNEL_TIMER,
+// // 	KERNEL_TIMER_FPS,
+// // 	KERNEL_TIMER_COUNT
+// // } kernel_timer_t;
 
 typedef enum
 {
@@ -86,33 +86,24 @@ void kernelChangeDisplayIntensity(bool increase);
 
 /**
  * @brief Starts timer, KERNEL_TIMEOUT_x is emitted on timeout
- * @param timer		Kernel timer to be used
  * @param ms		Amount of milliseconds to wait
  * @param periodic	Whether the timer stops after timeout or keeps running
  */
-void kernelStartTimer(kernel_timer_t timer, uint32_t ms, bool periodic);
+void kernelStartTimer(uint32_t ms, bool periodic);
 
 /**
  * @brief Stops timer
- * @param timer		Kernel timer to be stopped
  */
-void kernelStopTimer(kernel_timer_t timer);
+void kernelStopTimer();
 
 /**
  * @brief If running, stops the timer, and restarts from the beginning
- * @param timer		Kernel timer to be stopped
  */
-void kernelRestartTimer(kernel_timer_t timer);
+void kernelRestartTimer();
 
 /*******************************************************************************
  * EVENT GENERATORS INTERFACE
  ******************************************************************************/
-
-/**
- * @brief Checks if there is a new event in the event queue of the Kernel.
- * @return True if there is a new event, false otherwise.
- */
-bool kernelIsEvent(void);
 
 /**
  * @brief Returns the next event in the event queue of the Kernel.

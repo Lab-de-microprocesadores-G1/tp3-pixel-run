@@ -21,11 +21,6 @@
 #define RUNNER_POS_INIT                 0
 
 
-enum 
-{
-    POS_X,
-    POS_Y
-};
 
 //  UP-LEFT CORNER -----------> (+x)
 //  .
@@ -75,7 +70,7 @@ static void togglePause(void);
  * @brief   Checks if there was a collision. If so, calls game-over animation
  *          resets the game and pauses it.
  */
-static void checkCollision(void);
+static bool checkCollision(void);
 
 /**
  * @brief   Resets game values to initial ones.
@@ -86,6 +81,11 @@ static void gameInit(void);
  * @brief   Resets game values to initial ones.
  */
 static void gameOverUpdate(void);
+
+/**
+ * @brief   Resets game values to initial ones.
+ */
+static void scoreManager(void);
 
 
 /*******************************************************************************
@@ -133,6 +133,8 @@ static pixelrun_block_matrix_t  blocksPattern =
     {KERNEL_BLACK, KERNEL_BLACK, KERNEL_BLUE, KERNEL_BLUE, KERNEL_BLUE, KERNEL_BLUE, KERNEL_BLACK, KERNEL_BLACK},
 };          // Matrix to draw tiles of obstacles from
 
+static uint16_t scrollTime[DIFF_NUM] = {1000, 500, 250, 125};
+
 /*******************************************************************************
  *******************************************************************************
                         GLOBAL FUNCTION DEFINITIONS
@@ -149,9 +151,9 @@ void appInit (void)
 /* Called repeatedly in an infinite loop */
 void appRun (void)
 {
-    if (kernelIsEvent())
+    kernel_event_t ev = kernelGetNextEvent();
+    if (ev.id != KERNEL_NO_EVENT)
     {
-        kernel_event_t ev = kernelGetNextEvent();
         switch (ev.id)
         {
             case KERNEL_TIMEOUT:
@@ -163,7 +165,7 @@ void appRun (void)
                 else
                 {
                     if(!gameContext.gamePaused) 
-                        scrollObstacle();
+                        scrollObstacles();
                 } 
             } break;
             case KERNEL_RIGHT: if(!gameContext.gamePaused && !gameContext.gameOverAnimation) moveRight(); break;
@@ -171,15 +173,26 @@ void appRun (void)
             case KERNEL_ENTER: if(!gameContext.gameOverAnimation) togglePause(); break;
         }
         
-        checkCollision();
+        if (checkCollision() && !gameContext.gameOverAnimation)
+        {
+            gameContext.gameOverAnimation = true;
+            gameOverUpdate();
+        }
+        else if (ev.id == KERNEL_TIMEOUT && !gameContext.gameOverAnimation)
+        {
+            scoreManager();
+        }
+        
         updateDisplay();
     }
 }
+
 /*******************************************************************************
  *******************************************************************************
                         LOCAL FUNCTION DEFINITIONS
  *******************************************************************************
  ******************************************************************************/
+
 void gameInit(void)
 {
     gameContext.runnerPos = RUNNER_POS_INIT;
@@ -211,6 +224,9 @@ void gameInit(void)
 
     gameContext.gameOverAnimation = false;
     gameContext.gameOverIndex = 0;
+
+    updateDisplay();
+    kernelStartTimer(scrollTime[DIFF_0], false);
 }
 
 void togglePause(void)
@@ -273,21 +289,43 @@ void updateDisplay(void)
     kernelDisplay(gameContext.board);
 }
 
-void checkCollision(void)
+bool checkCollision(void)
 {
     return (gameContext.board[DISPLAY_SIZE-1][gameContext.runnerPos] != KERNEL_BLACK); // checks color in runner's position
 }
 
 void gameOverUpdate(void)
 {
-    if (gameContext.gameOverAnimation < DISPLAY_SIZE*DISPLAY_SIZE)
+    if (gameContext.gameOverIndex < DISPLAY_SIZE*DISPLAY_SIZE)
     {
-        // TODO kernelStartTimer(timer, 50, false);
+        kernelStartTimer(50, false);
         *((kernel_color_t*)gameContext.board + gameContext.gameOverIndex++) = KERNEL_RED;
     }
     else
     {
         gameInit();
+    }
+}
+
+void scoreManager(void)
+{
+    gameContext.score++;
+
+    if (gameContext.score < 10)
+    {
+        kernelStartTimer(scrollTime[DIFF_0], false);
+    }
+    else if (gameContext.score < 30)
+    {
+        kernelStartTimer(scrollTime[DIFF_1], false);
+    }
+    else if (gameContext.score < 70)
+    {
+        kernelStartTimer(scrollTime[DIFF_2], false);
+    }
+    else if (gameContext.score < 150)
+    {
+        kernelStartTimer(scrollTime[DIFF_3], false);
     }
 }
 /*******************************************************************************
