@@ -52,6 +52,7 @@ static void* hardwareEvGen(void);
 static void joystickCallback(joystick_fixed_direction_t direction);
 static void timerCallback(void);
 static void accelerometerCallback(void);
+
 /*******************************************************************************
  * VARIABLES WITH GLOBAL SCOPE
  ******************************************************************************/
@@ -76,7 +77,7 @@ static kernel_event_t   kernelQueueBuffer[EVGEN_QUEUE_SIZE];
 static queue_t          kernelEvsInternalQueue;
 
 /* Controls brightness of display */
-static uint8_t kernelBrightness = 50;
+static uint8_t kernelBrightness = 5;
 
 /*******************************************************************************
  *******************************************************************************
@@ -108,7 +109,7 @@ void kernelInit(void)
   registerEventGenerator(&(kernelContext.eventQueue), hardwareEvGen);
 }
 
-void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPLAY_SIZE])
+void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPLAY_SIZE], uint8_t runnerPos)
 {
   for (uint8_t i=0; i<KERNEL_DISPLAY_SIZE; i++)
   {
@@ -141,6 +142,13 @@ void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPL
           kernelDisplayMatrix[i][j].b = kernelBluePixel.b *  kernelBrightness;
         } break;
       }
+
+      if (i == 7 && j == runnerPos)
+      {
+    	kernelDisplayMatrix[i][j].r = kernelGreenPixel.r * kernelBrightness;
+    	kernelDisplayMatrix[i][j].g = kernelGreenPixel.g * kernelBrightness;
+    	kernelDisplayMatrix[i][j].b = kernelGreenPixel.b * kernelBrightness;
+      }
     }
   }
 
@@ -153,14 +161,14 @@ void kernelChangeDisplayIntensity(bool increase)
   {
     for (uint32_t j=0; j<KERNEL_DISPLAY_SIZE; j++)
     {
-      kernelDisplayMatrix[i][j].r = kernelDisplayMatrix[i][j].r / kernelBrightness * (kernelBrightness+5);
-      kernelDisplayMatrix[i][j].g = kernelDisplayMatrix[i][j].g / kernelBrightness * (kernelBrightness+5);
-      kernelDisplayMatrix[i][j].b = kernelDisplayMatrix[i][j].b / kernelBrightness * (kernelBrightness+5);
+      kernelDisplayMatrix[i][j].r = kernelDisplayMatrix[i][j].r / kernelBrightness * (kernelBrightness+1);
+      kernelDisplayMatrix[i][j].g = kernelDisplayMatrix[i][j].g / kernelBrightness * (kernelBrightness+1);
+      kernelDisplayMatrix[i][j].b = kernelDisplayMatrix[i][j].b / kernelBrightness * (kernelBrightness+1);
         
     }
   }
 
-  kernelBrightness += 5;
+  kernelBrightness += 1;
 
   WS2812Update();
 }
@@ -186,6 +194,11 @@ void kernelRestartTimer()
                         LOCAL FUNCTION DEFINITIONS
  *******************************************************************************
  ******************************************************************************/
+kernel_event_t kernelGetNextEvent(void)
+{
+	return *((kernel_event_t*)getNextEvent(&kernelContext.eventQueue));
+}
+
 void* hardwareEvGen(void)
 {
   return pop(&kernelEvsInternalQueue);
@@ -217,10 +230,10 @@ void joystickCallback(joystick_fixed_direction_t direction)
 void accelerometerCallback(void)
 {
   acc_orientation_t currentOrientation;
-  if (FXOSGetOrientation(&currentOrientation) && emptySize(&accelerometerQueue))
+  if (FXOSGetOrientation(&currentOrientation) && emptySize(&kernelEvsInternalQueue))
   {
     kernel_event_t ev;
-    switch(currentOrientation)
+    switch(currentOrientation.landscapePortrait)
     {
       case ACC_LANDSCAPE_RIGHT:
         ev.id = KERNEL_RIGHT;

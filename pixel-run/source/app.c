@@ -8,7 +8,6 @@
  * INCLUDE HEADER FILES
  ******************************************************************************/
 
-// #include "superpower.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include "kernel/kernel.h"
@@ -18,7 +17,7 @@
  ******************************************************************************/
 
 #define DISPLAY_SIZE	       	        8	// Display side number of digits (8x8)
-#define RUNNER_POS_INIT                 0
+#define RUNNER_POS_INIT                 4
 
 
 
@@ -92,6 +91,16 @@ static void scoreManager(void);
  * VARIABLES TYPES DEFINITIONS
  ******************************************************************************/
 
+typedef enum
+{
+    DIFF_0,
+    DIFF_1,
+    DIFF_2,
+    DIFF_3,
+    DIFF_NUM
+} difficulty_t;
+
+
 typedef struct
 {
     uint16_t            score;                   
@@ -105,15 +114,6 @@ typedef struct
     uint8_t             gameOverIndex;
 } pixelrun_context_t;
 
-
-typedef enum
-{
-    DIFF_0,
-    DIFF_1,
-    DIFF_2,
-    DIFF_3,
-    DIFF_NUM
-} difficulty_t;
 
 typedef kernel_color_t pixelrun_block_matrix_t[7][DISPLAY_SIZE];
 
@@ -133,7 +133,7 @@ static pixelrun_block_matrix_t  blocksPattern =
     {KERNEL_BLACK, KERNEL_BLACK, KERNEL_BLUE, KERNEL_BLUE, KERNEL_BLUE, KERNEL_BLUE, KERNEL_BLACK, KERNEL_BLACK},
 };          // Matrix to draw tiles of obstacles from
 
-static uint16_t scrollTime[DIFF_NUM] = {1000, 500, 250, 125};
+static uint16_t scrollTime[DIFF_NUM] = {10000, 5000, 2500, 1250};
 
 /*******************************************************************************
  *******************************************************************************
@@ -205,7 +205,7 @@ void gameInit(void)
     
     for (uint8_t i=0; i<DISPLAY_SIZE; i++)
     {
-        if (i % 2)
+        if (!(i % 2))
         {
             for (uint8_t j=0; j<DISPLAY_SIZE; j++)
             {
@@ -236,7 +236,7 @@ void togglePause(void)
 
 void moveLeft(void)
 {
-    if (gameContext.runnerPos < 0 )
+    if (gameContext.runnerPos > 0 )
     {
         gameContext.runnerPos--;
     }
@@ -252,7 +252,7 @@ void moveRight(void)
 
 void scrollObstacles(void)
 {
-    for (uint8_t i=1; i<DISPLAY_SIZE; i++)
+    for (uint8_t i=7; i>0; i--)
     {
         for (uint8_t j=0; j<DISPLAY_SIZE; j++)
         {
@@ -281,17 +281,29 @@ void scrollObstacles(void)
 
 kernel_color_t * generateObstacleLine(void)
 {
-    return blocksPattern[gameContext.tileOfBlocks++];
+	kernel_color_t * ret;
+	if (gameContext.tileOfBlocks < 7)
+	{
+	  ret = blocksPattern[gameContext.tileOfBlocks++];
+	}
+	else
+	{
+	  gameContext.tileOfBlocks = 0;
+	  ret = blocksPattern[gameContext.tileOfBlocks++];
+	}
+
+	return ret;
 }
 
 void updateDisplay(void)
 {
-    kernelDisplay(gameContext.board);
+    kernelDisplay(gameContext.board, gameContext.runnerPos);
 }
 
 bool checkCollision(void)
 {
-    return (gameContext.board[DISPLAY_SIZE-1][gameContext.runnerPos] != KERNEL_BLACK); // checks color in runner's position
+//    return (gameContext.board[DISPLAY_SIZE-1][gameContext.runnerPos] != KERNEL_BLACK); // checks color in runner's position
+	return false;
 }
 
 void gameOverUpdate(void)

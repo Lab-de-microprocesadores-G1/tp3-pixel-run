@@ -14,6 +14,8 @@
 #include "MK64F12.h"
 #include "hardware.h"
 
+uint8_t huevo;
+
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
@@ -250,6 +252,7 @@ __ISR__ DMA0_IRQHandler(void)
       else if (context.framesCopied == context.totalFrames)
       {
         ftmPwmSetEnable(context.ftmInstance, context.ftmChannel, false);
+        huevo++;
       }
     } 
   }

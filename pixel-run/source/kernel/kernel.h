@@ -76,7 +76,7 @@ void kernelInit(void);
  * @brief Writes to the display
  * @param stream 	Array of digits, length DISPLAY_LENGTH
  */
-void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPLAY_SIZE]);
+void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPLAY_SIZE], uint8_t runnerPos);
 
 /**
  * @brief Changes display intensity

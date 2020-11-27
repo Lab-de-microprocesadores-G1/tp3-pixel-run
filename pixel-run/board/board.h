@@ -33,6 +33,14 @@
 
 // Active Status
 #define LED_ACTIVE      LOW
+
+// Joystick ports
+#define PIN_JOYSTICK_AXIS_X		PORTNUM2PIN(PB, 10)	// PTB10
+#define PIN_JOYSTICK_AXIS_Y		PORTNUM2PIN(PB, 3)	// PTB3
+#define PIN_JOYSTICK_BUTTON		PORTNUM2PIN(PC, 5)	// PTC5
+
+// Display ports
+#define PIN_DISPLAY_DATA		PORTNUM2PIN(PC,1)	// PTC1
     
 
 /*******************************************************************************
