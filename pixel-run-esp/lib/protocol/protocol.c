@@ -178,7 +178,8 @@ size_t protocolEncode(protocol_packet_t packet, uint8_t* encoded)
     *(encoded++) = packet.topic;
     switch (currentPacket.topic)
     {
-        case PROTOCOL_TOPIC_PIXEL:
+        case PROTOCOL_TOPIC_OBSTACLE_PIXEL:
+        case PROTOCOL_TOPIC_PLAYER_PIXEL:
             encoded += protocolEncodePixelData(packet.data.pixel, encoded);
             break;
         default:
@@ -223,7 +224,8 @@ static void protocolDecodeData(uint8_t data)
     // Data dispatcher, selects the parser according to the current topic being received
     switch (currentPacket.topic)
     {
-        case PROTOCOL_TOPIC_PIXEL:
+        case PROTOCOL_TOPIC_OBSTACLE_PIXEL:
+        case PROTOCOL_TOPIC_PLAYER_PIXEL:
             protocolDecodePixelData(data);
             break;
         default:

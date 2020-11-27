@@ -34,7 +34,8 @@ typedef struct {
 
 // Protocol supported topics
 typedef enum {
-    PROTOCOL_TOPIC_PIXEL,
+    PROTOCOL_TOPIC_PLAYER_PIXEL,
+    PROTOCOL_TOPIC_OBSTACLE_PIXEL,
 
     PROTOCOL_TOPIC_COUNT
 } protocol_topic_t;
