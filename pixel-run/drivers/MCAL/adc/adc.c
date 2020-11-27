@@ -65,8 +65,9 @@ static void adcIRQDispatcher(adc_instance_id_t id);
  ******************************************************************************/
 
 static adc_instance_t adcInstances[] = {
-    //    PIN      ALT  ADC_ID  ADC_CHANNEL
-    { 	PIN_ADC_0, 0,	ADC_0, 		1  	}  // ADC_INSTANCE_0
+    //    PIN      			ALT  	ADC_ID  ADC_CHANNEL
+    { 	PIN_JOYSTICK_AXIS_X, 0,		ADC_1, 		14  	},
+    { 	PIN_JOYSTICK_AXIS_Y, 0,		ADC_0, 		13  	}
 };
 
 // ADC registers pointers

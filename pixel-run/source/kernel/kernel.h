@@ -76,7 +76,7 @@ void kernelInit(void);
  * @brief Writes to the display
  * @param stream 	Array of digits, length DISPLAY_LENGTH
  */
-void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPLAY_SIZE]);
+void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPLAY_SIZE], uint8_t runnerPos);
 
 /**
  * @brief Changes display intensity
@@ -94,12 +94,19 @@ void kernelStartTimer(uint32_t ms, bool periodic);
 /**
  * @brief Stops timer
  */
-void kernelStopTimer();
+void kernelStopTimer(void);
 
 /**
  * @brief If running, stops the timer, and restarts from the beginning
  */
-void kernelRestartTimer();
+void kernelRestartTimer(void);
+
+/**
+ * @brief Print debug message
+ * @param msg	Message to print.
+ * @param len	Length of message to print.
+ */
+void kernelPrint(uint8_t * msg, uint8_t len);
 
 /*******************************************************************************
  * EVENT GENERATORS INTERFACE

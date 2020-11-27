@@ -17,8 +17,10 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-#define SYSTICK_ISR_FREQUENCY_HZ   1000U
-#define CPU_FREQUENCY_HZ           100000000UL
+#define SYSTICK_ISR_FREQUENCY_HZ   	1000U
+#define CPU_FREQUENCY_HZ           	100000000UL
+#define SYSTICK_TICK_MS			   	(1000U / SYSTICK_ISR_FREQUENCY_HZ)
+#define SYSTICK_MS2TICKS(x)			((x) / SYSTICK_TICK_MS)
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS

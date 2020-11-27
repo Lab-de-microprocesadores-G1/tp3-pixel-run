@@ -61,7 +61,8 @@ typedef struct {
 
 // Declaring the ADC channels configured
 typedef enum {
-  ADC_POTENTIOMETER,
+  ADC_JOYSTICK_AXIS_X,
+  ADC_JOYSTICK_AXIS_Y,
   ADC_INSTANCE_COUNT
 } adc_instance_id_t;
 
