@@ -94,12 +94,19 @@ void kernelStartTimer(uint32_t ms, bool periodic);
 /**
  * @brief Stops timer
  */
-void kernelStopTimer();
+void kernelStopTimer(void);
 
 /**
  * @brief If running, stops the timer, and restarts from the beginning
  */
-void kernelRestartTimer();
+void kernelRestartTimer(void);
+
+/**
+ * @brief Print debug message
+ * @param msg	Message to print.
+ * @param len	Length of message to print.
+ */
+void kernelPrint(uint8_t * msg, uint8_t len);
 
 /*******************************************************************************
  * EVENT GENERATORS INTERFACE

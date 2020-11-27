@@ -115,16 +115,16 @@ static uint32_t ICR2SCLDivider[] = {
 // Look-up table for the signal routing
 static uint8_t 	i2cPinout[I2C_INSTANCE_COUNT][I2C_PINOUT_COUNT] = {
   //   	I2C_SCL			  		I2C_SDA
-  {		PORTNUM2PIN(PE, 24)	, 	PORTNUM2PIN(PE, 25) 		},		// I2C INSTANCE 0
-  { 	PORTNUM2PIN(PE, 1)	, 	PORTNUM2PIN(PE, 0)			},		// I2C INSTANCE 1
+  {		PORTNUM2PIN(PE, 24)	, 	PORTNUM2PIN(PE, 25) 		},	// I2C INSTANCE 0
+  { 	PORTNUM2PIN(PC, 10)	, 	PORTNUM2PIN(PC, 11)			},	// I2C INSTANCE 1
   { 	PORTNUM2PIN(PA, 14)	, 	PORTNUM2PIN(PA, 13)			}		// I2C INSTANCE 2
 };
 
 // Look-up table for the pin alternative
 static uint8_t i2cAlternative[I2C_INSTANCE_COUNT][I2C_PINOUT_COUNT] = {
-  //   	I2C_SCL			  		I2C_SDA
-  {		5					,	5			},		// I2C INSTANCE 0
-  { 	6					,	6			},		// I2C INSTANCE 1
+  //   	I2C_SCL	 I2C_SDA
+  {		5					,	5			},	// I2C INSTANCE 0
+  { 	2					,	2			},	// I2C INSTANCE 1
   { 	5					,	5			}		// I2C INSTANCE 2
 };
 

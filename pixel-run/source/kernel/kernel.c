@@ -20,6 +20,9 @@
 #include  "../../drivers/HAL/joystick/joystick.h"
 #include  "../../drivers/HAL/FXOS8700/fxos8700_accelerometer.h"
 
+// MCAL Drivers (for debug)
+#include  "../../drivers/MCAL/uart/uart.h"
+
 // lib
 #include  "../../lib/event_queue/event_queue.h"
 
@@ -87,6 +90,10 @@ static uint8_t kernelBrightness = 5;
 
 void kernelInit(void)
 {
+  /* MCAL drivers initialisation */
+  uart_cfg_t config = { .baudRate = UART_BAUD_RATE_9600, .length = 0, .parityEnable = 0, .parityMode = 0, .stopMode = 0 };
+  uartInit(UART_INSTANCE_0, config);
+
   /* HAL drivers initialisation */
   joystickInit();
   timerInit();
@@ -111,6 +118,8 @@ void kernelInit(void)
 
 void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPLAY_SIZE], uint8_t runnerPos)
 {
+  uint8_t msg[] = "Display update\r\n";
+  kernelPrint(msg, strlen(msg));
   for (uint8_t i=0; i<KERNEL_DISPLAY_SIZE; i++)
   {
     for (uint32_t j=0; j<KERNEL_DISPLAY_SIZE; j++)
@@ -184,9 +193,17 @@ void kernelStopTimer(void)
   timerPause(kernelContext.timer);
 }
 
-void kernelRestartTimer()
+void kernelRestartTimer(void)
 {
 	timerRestart(kernelContext.timer);
+}
+
+void kernelPrint(uint8_t * msg, uint8_t len)
+{
+  if (uartCanTx(UART_INSTANCE_0, len))
+  {
+    uartWriteMsg(UART_INSTANCE_0, msg, len);
+  }
 }
 
 /*******************************************************************************
