@@ -249,6 +249,7 @@ __ISR__ DMA0_IRQHandler(void)
       {
 		  // Disable Scatter and Gather operation to prevent one extra request
     	  context.tcds[!context.currentFrame].CSR = ( context.tcds[!context.currentFrame].CSR & ~DMA_CSR_ESG_MASK ) | DMA_CSR_ESG(0);
+        context.tcds[!context.currentFrame].DLAST_SGA = 0;
       }
       else if (context.framesCopied == context.totalFrames)
       {
