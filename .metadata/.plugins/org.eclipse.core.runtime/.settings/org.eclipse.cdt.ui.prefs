@@ -18,6 +18,7 @@ c_operators=216,216,216
 c_single_line_comment=199,221,12
 c_string=255,198,0
 c_type=141,203,226
+content_assist_disabled_computers=org.eclipse.cdt.ui.textProposalCategory\u0000org.eclipse.cdt.ui.parserProposalCategory\u0000
 content_assist_parameters_background=25,29,31
 content_assist_parameters_foreground=216,216,216
 content_assist_proposals_background=25,29,31

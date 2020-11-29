@@ -31,7 +31,8 @@ typedef enum
 	KERNEL_ENTER,
 	KERNEL_LEFT,
 	KERNEL_RIGHT,
-	KERNEL_TIMEOUT
+	KERNEL_TIMEOUT,
+	KERNEL_FPS
 } kernel_event_id_t;
 
 typedef struct 

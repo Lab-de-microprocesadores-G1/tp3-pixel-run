@@ -41,7 +41,7 @@ static void updateDisplay(void);
 
 /**
  * @brief   Scrolls down the obstacles. Checks if there was a collision and acts
- *          accordingly. Calls updateDisplay() in the end.
+ *          accordingly.
  */
 static void scrollObstacles(void);
 
@@ -51,12 +51,12 @@ static void scrollObstacles(void);
 static kernel_color_t * generateObstacleLine(void);
 
 /**
- * @brief   Moves player to the right. Calls updateDisplay() in the end.
+ * @brief   Moves player to the right.
  */
 static void moveRight(void);
 
 /**
- * @brief   Moves player to the left. Calls updateDisplay() in the end.
+ * @brief   Moves player to the left.
  */
 static void moveLeft(void);
 
@@ -133,7 +133,7 @@ static pixelrun_block_matrix_t  blocksPattern =
     {KERNEL_BLACK, KERNEL_BLACK, KERNEL_BLUE, KERNEL_BLUE, KERNEL_BLUE, KERNEL_BLUE, KERNEL_BLACK, KERNEL_BLACK},
 };          // Matrix to draw tiles of obstacles from
 
-static uint16_t scrollTime[DIFF_NUM] = {10000, 5000, 2500, 1250};
+static uint16_t scrollTime[DIFF_NUM] = {1000, 800, 600, 400};
 
 /*******************************************************************************
  *******************************************************************************
@@ -183,7 +183,10 @@ void appRun (void)
             scoreManager();
         }
         
-        updateDisplay();
+        if (ev.id == KERNEL_FPS)
+        {
+            updateDisplay();
+        }
     }
 }
 
@@ -217,7 +220,7 @@ void gameInit(void)
         {
             for (uint8_t j=0; j<DISPLAY_SIZE; j++)
             {
-                gameContext.board[0][j] = KERNEL_BLACK;
+                gameContext.board[i][j] = KERNEL_BLACK;
             }
         }
     }
@@ -225,7 +228,6 @@ void gameInit(void)
     gameContext.gameOverAnimation = false;
     gameContext.gameOverIndex = 0;
 
-    updateDisplay();
     kernelStartTimer(scrollTime[DIFF_0], false);
 }
 
@@ -302,8 +304,7 @@ void updateDisplay(void)
 
 bool checkCollision(void)
 {
-//    return (gameContext.board[DISPLAY_SIZE-1][gameContext.runnerPos] != KERNEL_BLACK); // checks color in runner's position
-	return false;
+    return (gameContext.board[DISPLAY_SIZE-1][gameContext.runnerPos] != KERNEL_BLACK); // checks color in runner's position
 }
 
 void gameOverUpdate(void)
@@ -335,7 +336,7 @@ void scoreManager(void)
     {
         kernelStartTimer(scrollTime[DIFF_2], false);
     }
-    else if (gameContext.score < 150)
+    else
     {
         kernelStartTimer(scrollTime[DIFF_3], false);
     }

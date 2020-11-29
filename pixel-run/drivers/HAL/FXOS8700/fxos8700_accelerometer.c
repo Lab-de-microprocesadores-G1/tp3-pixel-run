@@ -164,9 +164,9 @@ bool FXOSInit(fxos_zlock_t zlock, fxos_bkfr_ths_t bkfr, fxos_threshold_t ths, fx
 	context.hysteresis = hyst;
 
     // Initialize the I2C driver
-    i2cMasterInit(I2C_INSTANCE_1, FXOS8700CQ_I2C_BAUD_RATE);
-    i2cOnFinished(I2C_INSTANCE_1, FXOSOnI2CFinished);
-    i2cOnError(I2C_INSTANCE_1, FXOSOnI2CError);
+    i2cMasterInit(I2C_INSTANCE_0, FXOS8700CQ_I2C_BAUD_RATE);
+    i2cOnFinished(I2C_INSTANCE_0, FXOSOnI2CFinished);
+    i2cOnError(I2C_INSTANCE_0, FXOSOnI2CError);
     
     // Initialize and set the periodic service routine
     timerInit();
@@ -398,14 +398,14 @@ static void FXOSRunningSequence(bool reset)
 static void FXOSStartRead(uint8_t address)
 {
   context.writeBuffer[0] = address;
-  i2cStartTransaction(I2C_INSTANCE_1, FXOS8700CQ_SLAVE_ADDRESS, context.writeBuffer, 1, context.readBuffer, 1);
+  i2cStartTransaction(I2C_INSTANCE_0, FXOS8700CQ_SLAVE_ADDRESS, context.writeBuffer, 1, context.readBuffer, 1);
 }
 
 static void FXOSStartWrite(uint8_t address, uint8_t value)
 {
   context.writeBuffer[0] = address;
   context.writeBuffer[1] = value;
-  i2cStartTransaction(I2C_INSTANCE_1, FXOS8700CQ_SLAVE_ADDRESS, context.writeBuffer, 2, NULL, 0);
+  i2cStartTransaction(I2C_INSTANCE_0, FXOS8700CQ_SLAVE_ADDRESS, context.writeBuffer, 2, NULL, 0);
 }
 
 /*******************************************************************************
