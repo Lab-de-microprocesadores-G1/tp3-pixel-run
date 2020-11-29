@@ -19,6 +19,7 @@
 #include  "../../drivers/HAL/timer/timer.h"
 #include  "../../drivers/HAL/joystick/joystick.h"
 #include  "../../drivers/HAL/FXOS8700/fxos8700_accelerometer.h"
+#include  "../../drivers/HAL/node_red/node_red.h"
 
 // MCAL Drivers (for debug)
 #include  "../../drivers/MCAL/uart/uart.h"
@@ -43,7 +44,7 @@
  ******************************************************************************/
 typedef struct
 {
-  uint8_t           queueBuffer[MAX_KERNEL_EVENT_QTY + 1];    // array reserved for the queue
+  kernel_event_t    queueBuffer[MAX_KERNEL_EVENT_QTY + 1];    // array reserved for the queue
   event_queue_t     eventQueue;                               // queue for HW events
   tim_id_t          timer;                                    // timer to use
   tim_id_t          fpsTimer;                                 // timer for fps
@@ -54,6 +55,7 @@ typedef struct
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
 static void* hardwareEvGen(void);
+static void* nodeRedEvGen(void);
 
 static void joystickCallback(joystick_fixed_direction_t direction);
 static void joystickButtonCallback(void);
@@ -70,11 +72,6 @@ static void fpsTimerCallback(void);
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
 
-const ws2812_pixel_t kernelBlackPixel = {0, 0, 0};
-const ws2812_pixel_t kernelRedPixel = {1, 0, 0};
-const ws2812_pixel_t kernelGreenPixel = {0, 1, 0};
-const ws2812_pixel_t kernelBluePixel = {0, 0, 1};
-
 /*******************************************************************************
  * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
@@ -85,8 +82,13 @@ static ws2812_pixel_t kernelDisplayMatrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPLAY_SI
 static kernel_event_t   kernelQueueBuffer[EVGEN_QUEUE_SIZE];
 static queue_t          kernelEvsInternalQueue;
 
-/* Controls brightness of display */
-static uint8_t kernelBrightness = 5;
+
+static ws2812_pixel_t kernelBlackPixel = {0, 0, 0};
+static ws2812_pixel_t kernelRedPixel = {5, 0, 0};
+static ws2812_pixel_t kernelGreenPixel = {0, 5, 0};
+static ws2812_pixel_t kernelBluePixel = {0, 0, 5};
+
+static kernel_event_t newColourEv; 
 
 /*******************************************************************************
  *******************************************************************************
@@ -109,6 +111,7 @@ void kernelInit(void)
   WS2812Init();
   WS2812SetDisplayBuffer(kernelDisplayMatrix, KERNEL_DISPLAY_SIZE*KERNEL_DISPLAY_SIZE);
   FXOSInit(FXOS_ZLOCK_13_DEG, FXOS_BKFR_THRESHOLD_0, FXOS_THRESHOLD_15_DEG, FXOS_HYSTERESIS_11_DEG);
+  nodeRedInit();
 
   /* event generators queue init */
   kernelEvsInternalQueue = createQueue(kernelQueueBuffer, EVGEN_QUEUE_SIZE, sizeof(kernel_event_t));
@@ -123,6 +126,7 @@ void kernelInit(void)
   
   /* event generators registration */
   registerEventGenerator(&(kernelContext.eventQueue), hardwareEvGen);
+  registerEventGenerator(&(kernelContext.eventQueue), nodeRedEvGen);
 }
 
 void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPLAY_SIZE], uint8_t runnerPos)
@@ -141,50 +145,32 @@ void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPL
         } break;
         case KERNEL_RED: 
         {
-          kernelDisplayMatrix[i][j].r = kernelRedPixel.r * kernelBrightness;
-          kernelDisplayMatrix[i][j].g = kernelRedPixel.g * kernelBrightness;
-          kernelDisplayMatrix[i][j].b = kernelRedPixel.b * kernelBrightness;
+          kernelDisplayMatrix[i][j].r = kernelRedPixel.r;
+          kernelDisplayMatrix[i][j].g = kernelRedPixel.g;
+          kernelDisplayMatrix[i][j].b = kernelRedPixel.b;
         } break;
         case KERNEL_GREEN: 
         {
-          kernelDisplayMatrix[i][j].r = kernelGreenPixel.r * kernelBrightness;
-          kernelDisplayMatrix[i][j].g = kernelGreenPixel.g * kernelBrightness;
-          kernelDisplayMatrix[i][j].b = kernelGreenPixel.b * kernelBrightness;
+          kernelDisplayMatrix[i][j].r = kernelGreenPixel.r;
+          kernelDisplayMatrix[i][j].g = kernelGreenPixel.g;
+          kernelDisplayMatrix[i][j].b = kernelGreenPixel.b;
         } break;
         case KERNEL_BLUE: 
         {
-          kernelDisplayMatrix[i][j].r = kernelBluePixel.r *  kernelBrightness;
-          kernelDisplayMatrix[i][j].g = kernelBluePixel.g *  kernelBrightness;
-          kernelDisplayMatrix[i][j].b = kernelBluePixel.b *  kernelBrightness;
+          kernelDisplayMatrix[i][j].r = kernelBluePixel.r;
+          kernelDisplayMatrix[i][j].g = kernelBluePixel.g;
+          kernelDisplayMatrix[i][j].b = kernelBluePixel.b;
         } break;
       }
 
       if (i == 7 && j == runnerPos)
       {
-    	kernelDisplayMatrix[i][j].r = kernelGreenPixel.r * kernelBrightness;
-    	kernelDisplayMatrix[i][j].g = kernelGreenPixel.g * kernelBrightness;
-    	kernelDisplayMatrix[i][j].b = kernelGreenPixel.b * kernelBrightness;
+    	kernelDisplayMatrix[i][j].r = kernelGreenPixel.r;
+    	kernelDisplayMatrix[i][j].g = kernelGreenPixel.g;
+    	kernelDisplayMatrix[i][j].b = kernelGreenPixel.b;
       }
     }
   }
-
-  WS2812Update();
-}
-
-void kernelChangeDisplayIntensity(bool increase)
-{
-  for (uint8_t i=0; i<KERNEL_DISPLAY_SIZE; i++)
-  {
-    for (uint32_t j=0; j<KERNEL_DISPLAY_SIZE; j++)
-    {
-      kernelDisplayMatrix[i][j].r = kernelDisplayMatrix[i][j].r / kernelBrightness * (kernelBrightness+1);
-      kernelDisplayMatrix[i][j].g = kernelDisplayMatrix[i][j].g / kernelBrightness * (kernelBrightness+1);
-      kernelDisplayMatrix[i][j].b = kernelDisplayMatrix[i][j].b / kernelBrightness * (kernelBrightness+1);
-        
-    }
-  }
-
-  kernelBrightness += 1;
 
   WS2812Update();
 }
@@ -217,6 +203,22 @@ void kernelRestartTimer(void)
 	timerRestart(kernelContext.timer);
 }
 
+void kernelChangeNodeRedColour(protocol_packet_t newColourPacket)
+{
+  if (newColourPacket.topic == PROTOCOL_TOPIC_PLAYER_PIXEL)
+  {
+    kernelGreenPixel.r = newColourPacket.data.pixel.r;
+    kernelGreenPixel.g = newColourPacket.data.pixel.g;
+    kernelGreenPixel.b = newColourPacket.data.pixel.b;
+  }
+  else if (newColourPacket.topic == PROTOCOL_TOPIC_OBSTACLE_PIXEL)
+  {
+    kernelBluePixel.r = newColourPacket.data.pixel.r;
+    kernelBluePixel.g = newColourPacket.data.pixel.g;
+    kernelBluePixel.b = newColourPacket.data.pixel.b;
+  }
+}
+
 void kernelPrint(uint8_t * msg, uint8_t len)
 {
   if (uartCanTx(UART_INSTANCE_0, len))
@@ -238,6 +240,22 @@ kernel_event_t kernelGetNextEvent(void)
 void* hardwareEvGen(void)
 {
   return pop(&kernelEvsInternalQueue);
+}
+
+void* nodeRedEvGen(void)
+{
+  if (nodeRedHasNewValue())
+  {
+    newColourEv.id = KERNEL_NODE_RED_COLOUR;
+    newColourEv.nodeRedColour = nodeRedGetValue();
+
+    if (newColourEv.nodeRedColour.data.pixel.r != 0 || newColourEv.nodeRedColour.data.pixel.g != 0 || newColourEv.nodeRedColour.data.pixel.b != 0)
+    {
+      return &newColourEv;
+    }
+  }
+
+  return NO_EVENTS;
 }
 
 void joystickCallback(joystick_fixed_direction_t direction)

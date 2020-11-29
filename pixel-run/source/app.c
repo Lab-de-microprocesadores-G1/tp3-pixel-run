@@ -171,6 +171,7 @@ void appRun (void)
             case KERNEL_RIGHT: if(!gameContext.gamePaused && !gameContext.gameOverAnimation) moveRight(); break;
             case KERNEL_LEFT: if(!gameContext.gamePaused && !gameContext.gameOverAnimation) moveLeft(); break;
             case KERNEL_ENTER: if(!gameContext.gameOverAnimation) togglePause(); break;
+            case KERNEL_NODE_RED_COLOUR: kernelChangeNodeRedColour(ev.nodeRedColour); break;
         }
         
         if (checkCollision() && !gameContext.gameOverAnimation)

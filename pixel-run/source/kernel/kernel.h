@@ -13,6 +13,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include  "../../drivers/HAL/node_red/node_red.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -32,12 +33,14 @@ typedef enum
 	KERNEL_LEFT,
 	KERNEL_RIGHT,
 	KERNEL_TIMEOUT,
-	KERNEL_FPS
+	KERNEL_FPS,
+	KERNEL_NODE_RED_COLOUR
 } kernel_event_id_t;
 
 typedef struct 
 {
     kernel_event_id_t   id;
+	protocol_packet_t	nodeRedColour;
 } kernel_event_t;
 
 // // Kernel available timers
@@ -80,12 +83,6 @@ void kernelInit(void);
 void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPLAY_SIZE], uint8_t runnerPos);
 
 /**
- * @brief Changes display intensity
- * @param increase whether to increase or decrease the intensity
- */
-void kernelChangeDisplayIntensity(bool increase);
-
-/**
  * @brief Starts timer, KERNEL_TIMEOUT_x is emitted on timeout
  * @param ms		Amount of milliseconds to wait
  * @param periodic	Whether the timer stops after timeout or keeps running
@@ -102,9 +99,23 @@ void kernelStopTimer(void);
  */
 void kernelRestartTimer(void);
 
+/**
+ * @brief Starts FPS timer.
+ */
 void kernelStartFpsTimer(void);
 
+/**
+ * @brief Checks if FPS timer has finished.
+ * @return True if FPS timer has finished. False otherwise.
+ */
 bool kernelFpsReady(void);
+
+/**
+ * @brief 	Changes the colour of the runner or obstacle, depending on the topic of the parameter
+ * 			to the given parameter.
+ * @param newColour New colour of the runner or obstacle.
+ */
+void kernelChangeNodeRedColour(protocol_packet_t newColourPacket);
 
 /**
  * @brief Print debug message
