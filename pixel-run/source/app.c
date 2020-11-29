@@ -183,9 +183,10 @@ void appRun (void)
             scoreManager();
         }
         
-        if (ev.id == KERNEL_FPS)
+        if (kernelFpsReady())
         {
             updateDisplay();
+            kernelStartFpsTimer();
         }
     }
 }
@@ -309,10 +310,14 @@ bool checkCollision(void)
 
 void gameOverUpdate(void)
 {
-    if (gameContext.gameOverIndex < DISPLAY_SIZE*DISPLAY_SIZE)
+    if (gameContext.gameOverIndex < DISPLAY_SIZE)
     {
-        kernelStartTimer(50, false);
-        *((kernel_color_t*)gameContext.board + gameContext.gameOverIndex++) = KERNEL_RED;
+        kernelStartTimer(100, false);
+        for (uint8_t j=0; j<DISPLAY_SIZE; j++)
+        {
+            gameContext.board[gameContext.gameOverIndex][j] = KERNEL_RED;
+        }
+        gameContext.gameOverIndex++;
     }
     else
     {

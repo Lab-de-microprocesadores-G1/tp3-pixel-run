@@ -46,7 +46,8 @@ typedef struct
   uint8_t           queueBuffer[MAX_KERNEL_EVENT_QTY + 1];    // array reserved for the queue
   event_queue_t     eventQueue;                               // queue for HW events
   tim_id_t          timer;                                    // timer to use
-  tim_id_t          fpsTimer;                                 // timer for fps       
+  tim_id_t          fpsTimer;                                 // timer for fps
+  bool              fpsReady;     
 }kernel_context_t;
 
 /*******************************************************************************
@@ -104,6 +105,7 @@ void kernelInit(void)
   timerInit();
   kernelContext.timer = timerGetId();
   kernelContext.fpsTimer = timerGetId();
+  kernelContext.fpsReady = true;
   WS2812Init();
   WS2812SetDisplayBuffer(kernelDisplayMatrix, KERNEL_DISPLAY_SIZE*KERNEL_DISPLAY_SIZE);
   FXOSInit(FXOS_ZLOCK_13_DEG, FXOS_BKFR_THRESHOLD_0, FXOS_THRESHOLD_15_DEG, FXOS_HYSTERESIS_11_DEG);
@@ -121,9 +123,6 @@ void kernelInit(void)
   
   /* event generators registration */
   registerEventGenerator(&(kernelContext.eventQueue), hardwareEvGen);
-
-  /* Initalising FPS timer */
-  timerStart(kernelContext.fpsTimer, TIMER_MS2TICKS(KERNEL_REF_PERIOD), TIM_MODE_PERIODIC, fpsTimerCallback);
 }
 
 void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPLAY_SIZE], uint8_t runnerPos)
@@ -194,6 +193,18 @@ void kernelStartTimer(uint32_t ms, bool periodic)
 {
   uint8_t mode = periodic ? TIM_MODE_PERIODIC : TIM_MODE_SINGLESHOT;
   timerStart(kernelContext.timer, TIMER_MS2TICKS(ms), mode, timerCallback);
+}
+
+void kernelStartFpsTimer(void)
+{
+  /* Initalising FPS timer */
+  timerStart(kernelContext.fpsTimer, TIMER_MS2TICKS(KERNEL_REF_PERIOD), false, fpsTimerCallback);
+  kernelContext.fpsReady = false;
+}
+
+bool kernelFpsReady(void)
+{
+  return kernelContext.fpsReady;
 }
 
 void kernelStopTimer(void)
@@ -296,6 +307,8 @@ void timerCallback(void)
 
 void fpsTimerCallback(void)
 {
+  kernelContext.fpsReady = true;
+
   kernel_event_t newTimerEv = { .id = KERNEL_FPS };
   if (emptySize(&kernelEvsInternalQueue))
   {

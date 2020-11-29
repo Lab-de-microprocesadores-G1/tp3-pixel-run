@@ -102,6 +102,10 @@ void kernelStopTimer(void);
  */
 void kernelRestartTimer(void);
 
+void kernelStartFpsTimer(void);
+
+bool kernelFpsReady(void);
+
 /**
  * @brief Print debug message
  * @param msg	Message to print.
