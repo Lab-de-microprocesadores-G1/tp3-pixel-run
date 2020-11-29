@@ -9,7 +9,7 @@
  ******************************************************************************/
 
 #include "protocol.h"
-#include "queue.h"
+#include "../queue/queue.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -51,6 +51,7 @@ typedef enum {
  */
 static void protocolDecodeData(uint8_t data);
 static void protocolDecodePixelData(uint8_t data);
+static void protocolDecodeLevelData(uint8_t data);
 
 /**
  * @brief Encodes pixel data
@@ -58,6 +59,13 @@ static void protocolDecodePixelData(uint8_t data);
  * @param encode    Pointer of the result
  */
 static size_t protocolEncodePixelData(protocol_pixel_data_t data, uint8_t* encoded);
+
+/**
+ * @brief Encodes level data
+ * @param data      Data to be encoded
+ * @param encode    Pointer of the result
+ */
+static size_t protocolEncodeLevelData(protocol_level_data_t data, uint8_t* encoded);
 
 /*
  * @brief Applies the escaping algorithm to a byte received or sent
@@ -182,6 +190,9 @@ size_t protocolEncode(protocol_packet_t packet, uint8_t* encoded)
         case PROTOCOL_TOPIC_PLAYER_PIXEL:
             encoded += protocolEncodePixelData(packet.data.pixel, encoded);
             break;
+        case PROTOCOL_TOPIC_LEVEL:
+            encoded += protocolEncodeLevelData(packet.data.level, encoded);
+            break;
         default:
             break;
     }
@@ -228,6 +239,9 @@ static void protocolDecodeData(uint8_t data)
         case PROTOCOL_TOPIC_PLAYER_PIXEL:
             protocolDecodePixelData(data);
             break;
+        case PROTOCOL_TOPIC_LEVEL:
+        	protocolDecodeLevelData(data);
+        	break;
         default:
             break;
     }
@@ -252,12 +266,23 @@ static void protocolDecodePixelData(uint8_t data)
     }
 }
 
+static void protocolDecodeLevelData(uint8_t data)
+{
+	currentPacket.data.level.level = data;
+}
+
 static size_t protocolEncodePixelData(protocol_pixel_data_t data, uint8_t* encoded)
 {
     *(encoded++) = data.r;
     *(encoded++) = data.g;
     *(encoded++) = data.b;
     return sizeof(data);
+}
+
+static size_t protocolEncodeLevelData(protocol_level_data_t data, uint8_t* encoded)
+{
+	*(encoded++) = data.level;
+	return sizeof(data);
 }
 
 static uint8_t protocolEscapeAlgorithm(uint8_t data)

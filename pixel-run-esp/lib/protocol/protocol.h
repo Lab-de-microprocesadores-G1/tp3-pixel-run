@@ -32,10 +32,16 @@ typedef struct {
     uint8_t b;
 } protocol_pixel_data_t;
 
+// Level topic data structure
+typedef struct {
+	uint8_t level;
+} protocol_level_data_t;
+
 // Protocol supported topics
 typedef enum {
     PROTOCOL_TOPIC_PLAYER_PIXEL,
     PROTOCOL_TOPIC_OBSTACLE_PIXEL,
+	PROTOCOL_TOPIC_LEVEL,
 
     PROTOCOL_TOPIC_COUNT
 } protocol_topic_t;
@@ -43,6 +49,7 @@ typedef enum {
 // Protocol packet data
 typedef union {
     protocol_pixel_data_t   pixel;
+    protocol_level_data_t	level;
 } protocol_data_t;
 
 // Protocol packet
@@ -91,4 +98,4 @@ size_t protocolEncode(protocol_packet_t packet, uint8_t* encoded);
 /*******************************************************************************
  ******************************************************************************/
 
-#endif 
+#endif

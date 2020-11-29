@@ -12,11 +12,23 @@
  ******************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
-#include "../../../lib/protocol/protocol.h"
+#include "lib/protocol/protocol.h"
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
+typedef enum {
+	OBSTACLE,
+	PLAYER
+} node_red_topic_t;
+
+// Pixel data structure
+typedef struct {
+  node_red_topic_t topic;
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+} node_red_pixel_t;
 
 
 /*******************************************************************************
@@ -33,27 +45,27 @@
  ******************************************************************************/
 
 /*
- * @brief Initializes the node_red driver
+ * @brief Initializes the driver
  */
 void nodeRedInit(void);
 
 /*
- * @brief Gets new colour
- * @return Struct with topic and rgb colours
+ * @brief Returns the next packet received from node red via mqtt
  */
 protocol_packet_t nodeRedGetValue();
 
 /*
- * @brief True if new value
+ * @brief True if new value available
  */
 bool nodeRedHasNewValue();
 
 /*
- * @brief Sends message to node-red
- * @param msg: message to send
- * @param length: length of message to be sent
+ * @brief Sends message to node red via mqtt
+ * @param packet  Packet with data and topic to be sent
+ * @return Whether it could send or not
  */
-void nodeRedSendValue(protocol_packet_t packet, uint8_t* encoded);
+bool nodeRedSendValue(protocol_packet_t packet);
+
 /*******************************************************************************
  ******************************************************************************/
 

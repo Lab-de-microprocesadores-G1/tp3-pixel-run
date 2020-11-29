@@ -34,6 +34,7 @@ using namespace std;
 // MQTT topic subscriptions
 #define TOPIC_PLAYER_PIXEL      "player_pixel"
 #define TOPIC_OBSTACLE_PIXEL    "obstacle_pixel"
+#define TOPIC_LEVEL             "level"
 
 // General application settings
 #define SERIAL_BAUD_RATE        9600
@@ -49,7 +50,13 @@ using namespace std;
  * @param payload Data of the event
  * @param length  Length of data
  */
-void dispatcher(char* topic, byte* payload, unsigned int length);
+void mqttDispatcher(char* topic, byte* payload, unsigned int length);
+
+/**
+ * @brief Dispatch the packet received via UART as a MQTT event
+ * @param packet    New packet received
+ */
+void packetDispatcher(protocol_packet_t packet);
 
 /*
  * @brief Parses pixel data
@@ -62,11 +69,12 @@ protocol_pixel_data_t parsePixelData(byte* payload, unsigned int length);
  * FILE SCOPE VARIABLES * 
  ***********************/
 
+uint8_t       receivedByte;                       // Buffer for the next received byte
 uint8_t       buffer[PROTOCOL_MAX_SIZE];          // Buffer for the data to be transmitted via UART
 
 const char*   wifiSsid      = "Fibertel WiFi664 2.4GHz";
 const char*   wifiPassword  = "00438996458";
-IPAddress     ip(192, 168, 0, 119);    // IP Address of the MQTT Server 
+IPAddress     ip(192, 168, 0, 119);               // IP Address of the MQTT Server 
 // IPAddress     ip((const uint8_t*)"broker.mqtt-dashboard.com");    // IP Address of the MQTT Server
 uint16_t      port = 1883;                        // Port of the MQTT Server
 
@@ -91,7 +99,7 @@ void setup()
 
   // Initialize the MQTT client
   mqttClient.setServer(ip, port);
-  mqttClient.setCallback(dispatcher);
+  mqttClient.setCallback(mqttDispatcher);
   mqttClient.setClient(wifiClient);
 
   // Initialize the connection to WiFi network
@@ -136,13 +144,36 @@ void loop()
 
   // Run the loop of the MQTT client
   mqttClient.loop();
+
+  // Verify if a new message via UART has been received
+  if (Serial.available())
+  {
+    receivedByte = Serial.read();
+    protocolDecode(receivedByte);
+    if (protocolHasPackets())
+    {
+      packetDispatcher(protocolGetNextPacket());
+    }
+  }
 }
 
 /***********************
  * FUNCTION DEFINITION * 
  **********************/
 
-void dispatcher(char* topic, byte* payload, unsigned int length)
+void packetDispatcher(protocol_packet_t packet)
+{
+  switch (packet.topic)
+  {
+    case PROTOCOL_TOPIC_LEVEL:
+      mqttClient.publish(TOPIC_LEVEL, &packet.data.level.level);
+      break;
+    default:
+      break;
+  }
+}
+
+void mqttDispatcher(char* topic, byte* payload, unsigned int length)
 {
   #ifdef DEBUG_MODE
   Serial.println("<MQTT Client> Data received from MQTT!");
