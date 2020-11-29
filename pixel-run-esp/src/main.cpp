@@ -37,6 +37,7 @@ using namespace std;
 
 // General application settings
 #define SERIAL_BAUD_RATE        9600
+//#define DEBUG_MODE
 
 /***********************************
  * FUNCTION PROPOTYPES DECLARATION * 
@@ -63,9 +64,10 @@ protocol_pixel_data_t parsePixelData(byte* payload, unsigned int length);
 
 uint8_t       buffer[PROTOCOL_MAX_SIZE];          // Buffer for the data to be transmitted via UART
 
-const char*   wifiSsid      = "Fibertel WiFi062 2.4GHz";
-const char*   wifiPassword  = "0141649034";
-IPAddress     ip(192, 168, 1, 12);    // IP Address of the MQTT Server
+const char*   wifiSsid      = "Fibertel WiFi568 2.4GHz";
+const char*   wifiPassword  = "0103052182";
+//IPAddress     ip(192, 168, 0, 140);    // IP Address of the MQTT Server
+IPAddress     ip((const uint8_t*)"broker.mqtt-dashboard.com");    // IP Address of the MQTT Server
 uint16_t      port = 1883;                        // Port of the MQTT Server
 
 const char*   mqttUser      = "lucaskammann";     // User for the MQTT connection
@@ -88,7 +90,7 @@ void setup()
   Serial.begin(SERIAL_BAUD_RATE);
 
   // Initialize the MQTT client
-  mqttClient.setServer("broker.mqtt-dashboard.com", port);
+  mqttClient.setServer(ip, port);
   mqttClient.setCallback(dispatcher);
   mqttClient.setClient(wifiClient);
 
@@ -114,6 +116,7 @@ void loop()
   // topics desired by the client.
   while ( !mqttClient.connected() )
   {
+    
     if (mqttClient.connect(mqttClientID, mqttUser, mqttPassword))
     {
       mqttClient.subscribe(TOPIC_PLAYER_PIXEL);
@@ -121,6 +124,12 @@ void loop()
 
       #ifdef DEBUG_MODE
       Serial.println("<MQTT Client> Client subscribed!");
+      #endif
+    }
+    else
+    {
+      #ifdef DEBUG_MODE
+      Serial.println("<MQTT Client> Client not subscribed!");
       #endif
     }
   }
@@ -161,7 +170,7 @@ void dispatcher(char* topic, byte* payload, unsigned int length)
   for (uint8_t i = 0 ; i < size ; i++)
   {
     while (!Serial.availableForWrite());
-    Serial.print(buffer[i]);
+    Serial.print((char)buffer[i]);
   }
 }
 
