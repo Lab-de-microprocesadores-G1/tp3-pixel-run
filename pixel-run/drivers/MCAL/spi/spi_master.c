@@ -215,7 +215,7 @@ void spiInit(spi_id_t id, spi_cfg_t config)
   SIM->SCGC5 |= SIM_SCGC5_PORTE(1);
 
   // Selecting the mux alternative for the port used
-  for (uint8_t i = 0 ; i < SPI_PIN_COUNT ; i++)
+  for (uint8_t i = 0 ; i < 4 ; i++)
   {
     portPointers[PIN2PORT(uartPins[id][i])]->PCR[PIN2NUM(uartPins[id][i])] = PORT_PCR_MUX(SPI_PORT_ALTERNATIVE) | PORT_PCR_DSE(1);
   }

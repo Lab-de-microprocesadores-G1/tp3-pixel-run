@@ -335,24 +335,35 @@ void scoreManager(void)
     if (gameContext.score < 10)
     {
         kernelStartTimer(scrollTime[DIFF_0], false);
-        kernelLevelLed(DIFF_0);
+        if (gameContext.score == 0)
+        {
+            kernelLevelLed(DIFF_0);
+        }
     }
     else if (gameContext.score < 30)
     {
         kernelStartTimer(scrollTime[DIFF_1], false);
-        kernelLevelLed(DIFF_1);
+        if (gameContext.score == 10)
+        {
+            kernelLevelLed(DIFF_1);
+        }
 
     }
     else if (gameContext.score < 70)
     {
         kernelStartTimer(scrollTime[DIFF_2], false);
-        kernelLevelLed(DIFF_2);
+        if (gameContext.score == 30)
+        {
+            kernelLevelLed(DIFF_2);
+        }
     }
     else
     {
         kernelStartTimer(scrollTime[DIFF_3], false);
-        kernelLevelLed(DIFF_3);
-
+        if (gameContext.score == 70)
+        {
+            kernelLevelLed(DIFF_3);
+        }
     }
 }
 /*******************************************************************************
