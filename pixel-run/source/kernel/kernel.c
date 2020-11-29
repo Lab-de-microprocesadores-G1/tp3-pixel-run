@@ -20,6 +20,7 @@
 #include  "../../drivers/HAL/joystick/joystick.h"
 #include  "../../drivers/HAL/FXOS8700/fxos8700_accelerometer.h"
 #include  "../../drivers/HAL/node_red/node_red.h"
+#include  "../../drivers/HAL/serial_led/serial_led.h"
 
 // MCAL Drivers (for debug)
 #include  "../../drivers/MCAL/uart/uart.h"
@@ -112,6 +113,7 @@ void kernelInit(void)
   WS2812SetDisplayBuffer(kernelDisplayMatrix, KERNEL_DISPLAY_SIZE*KERNEL_DISPLAY_SIZE);
   FXOSInit(FXOS_ZLOCK_13_DEG, FXOS_BKFR_THRESHOLD_0, FXOS_THRESHOLD_15_DEG, FXOS_HYSTERESIS_11_DEG);
   nodeRedInit();
+  serialLedInit();
 
   /* event generators queue init */
   kernelEvsInternalQueue = createQueue(kernelQueueBuffer, EVGEN_QUEUE_SIZE, sizeof(kernel_event_t));
@@ -227,6 +229,10 @@ void kernelPrint(uint8_t * msg, uint8_t len)
   }
 }
 
+void kernelLevelLed(uint8_t level)
+{
+  serialLedSetNumber(level + 1);
+}
 /*******************************************************************************
  *******************************************************************************
                         LOCAL FUNCTION DEFINITIONS

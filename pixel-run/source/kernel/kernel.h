@@ -124,6 +124,12 @@ void kernelChangeNodeRedColour(protocol_packet_t newColourPacket);
  */
 void kernelPrint(uint8_t * msg, uint8_t len);
 
+/**
+ * @brief Updates serial LED indicating level.
+ * @param level	New level.
+ */
+void kernelLevelLed(uint8_t level);
+
 /*******************************************************************************
  * EVENT GENERATORS INTERFACE
  ******************************************************************************/

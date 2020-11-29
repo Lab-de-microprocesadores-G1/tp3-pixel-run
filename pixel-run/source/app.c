@@ -230,6 +230,8 @@ void gameInit(void)
     gameContext.gameOverAnimation = false;
     gameContext.gameOverIndex = 0;
 
+    kernelLevelLed(DIFF_0);
+
     kernelStartTimer(scrollTime[DIFF_0], false);
 }
 
@@ -333,18 +335,24 @@ void scoreManager(void)
     if (gameContext.score < 10)
     {
         kernelStartTimer(scrollTime[DIFF_0], false);
+        kernelLevelLed(DIFF_0);
     }
     else if (gameContext.score < 30)
     {
         kernelStartTimer(scrollTime[DIFF_1], false);
+        kernelLevelLed(DIFF_1);
+
     }
     else if (gameContext.score < 70)
     {
         kernelStartTimer(scrollTime[DIFF_2], false);
+        kernelLevelLed(DIFF_2);
     }
     else
     {
         kernelStartTimer(scrollTime[DIFF_3], false);
+        kernelLevelLed(DIFF_3);
+
     }
 }
 /*******************************************************************************
