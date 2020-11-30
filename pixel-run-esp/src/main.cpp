@@ -74,13 +74,14 @@ uint8_t       buffer[PROTOCOL_MAX_SIZE];          // Buffer for the data to be t
 
 const char*   wifiSsid      = "Fibertel WiFi664 2.4GHz";
 const char*   wifiPassword  = "00438996458";
-IPAddress     ip(192, 168, 0, 119);               // IP Address of the MQTT Server
+// IPAddress     ip(192, 168, 0, 119);               // IP Address of the MQTT Server
 // IPAddress     ip((const uint8_t*)"broker.mqtt-dashboard.com");    // IP Address of the MQTT Server
+
 uint16_t      port = 1883;                        // Port of the MQTT Server
 
 const char*   mqttUser      = "lucaskammann";     // User for the MQTT connection
 const char*   mqttPassword  = "password";         // Password for the MQTT connection
-const char*   mqttClientID  = "someid";           // ID to identify as unique user
+const char*   mqttClientID  = "elfake";           // ID to identify as unique user
 
 PubSubClient  mqttClient;                         // Instance of the MQTT Client
 WiFiClient    wifiClient;                         // Instance of the WiFi Client
@@ -98,7 +99,7 @@ void setup()
   Serial.begin(SERIAL_BAUD_RATE);
 
   // Initialize the MQTT client
-  mqttClient.setServer(ip, port);
+  mqttClient.setServer("broker.mqtt-dashboard.com", port);
   mqttClient.setCallback(mqttDispatcher);
   mqttClient.setClient(wifiClient);
 
