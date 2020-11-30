@@ -25,6 +25,14 @@
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
+// Protocol decoder and encoder status
+typedef enum {
+    PE_OK,                  // The protocol is working with no errors
+    PE_UNKNOWN_TOPIC,       // Received an unknonw topic
+    PE_FORMAT_ERROR,        // Start, stop received when not expected
+    PE_COUNT
+} protocol_status_t;
+
 // Pixel topic data structure
 typedef struct {
     uint8_t r;
@@ -71,6 +79,11 @@ typedef struct {
  */
 void protocolInit(void);
 
+/**
+ * @brief Returns the current status of the protocol module.
+ */
+protocol_status_t protocolGetStatus(void);
+
 /*
  * @brief Run the decodification algorithm with the next byte received over the physical layer.
  * @param data      Next byte to decode
@@ -98,4 +111,4 @@ size_t protocolEncode(protocol_packet_t packet, uint8_t* encoded);
 /*******************************************************************************
  ******************************************************************************/
 
-#endif 
+#endif
