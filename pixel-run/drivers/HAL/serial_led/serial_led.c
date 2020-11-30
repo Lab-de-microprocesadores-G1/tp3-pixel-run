@@ -67,7 +67,7 @@ void serialLedInit()
 	if (!alreadyInit)
 	{
 		// Intialize SPI driver
-		spiInit(LED_SPI_INSTANCE, spiConfig);
+		spiInit(LED_SPI_INSTANCE, LED_SPI_SLAVE_ID, spiConfig);
 
 		// Turn off all LEDs
 		serialLedWriteAll(0);

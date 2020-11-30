@@ -22,6 +22,8 @@
 		<item value="false" key="WizardFileSystemResourceImportPage1.STORE_CREATE_CONTAINER_STRUCTURE_ID"/>
 		<item value="false" key="WizardFileSystemResourceImportPage1.STORE_OVERWRITE_EXISTING_RESOURCES_ID"/>
 		<list key="WizardFileSystemResourceImportPage1.STORE_SOURCE_NAMES_ID">
+			<item value="C:\Users\facun\OneDrive\Desktop\ITBA\7C_Laboratorio_de_Microprocesadores\Usefuls\Resources\drivers\MCAL"/>
+			<item value="C:\Users\facun\OneDrive\Desktop\ITBA\7C_Laboratorio_de_Microprocesadores\Usefuls\Resources\drivers\HAL"/>
 			<item value="C:\Users\facun\OneDrive\Desktop\ITBA\7C_Laboratorio_de_Microprocesadores\Usefuls\Testbenches\led_matrix_node_red_testbench\lib"/>
 			<item value="C:\Users\facun\OneDrive\Desktop\ITBA\7C_Laboratorio_de_Microprocesadores\Usefuls\Testbenches\led_matrix_node_red_testbench\drivers\HAL"/>
 		</list>

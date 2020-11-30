@@ -207,6 +207,8 @@ void gameInit(void)
     
     gameContext.tileOfBlocks = 3;
     gameContext.blankTile = true;
+
+    kernelInitRunner();
     
     for (uint8_t i=0; i<DISPLAY_SIZE; i++)
     {
@@ -308,7 +310,13 @@ void updateDisplay(void)
 
 bool checkCollision(void)
 {
-    return (gameContext.board[DISPLAY_SIZE-1][gameContext.runnerPos] != KERNEL_BLACK); // checks color in runner's position
+    bool collision = (gameContext.board[DISPLAY_SIZE-1][gameContext.runnerPos] != KERNEL_BLACK); // checks colour in runner's position
+    if (collision)
+    {
+        kernelChangeRunnerColour(KERNEL_RED);
+    }
+
+    return collision;
 }
 
 void gameOverUpdate(void)

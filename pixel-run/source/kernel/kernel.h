@@ -72,9 +72,14 @@ typedef enum
  ******************************************************************************/
 
 /**
- * @brief Kernel module initialization
+ * @brief Kernel module initialisation
  */
 void kernelInit(void);
+
+/**
+ * @brief Initialise runner colour.
+ */
+void kernelInitRunner(void);
 
 /**
  * @brief Writes to the display
@@ -116,6 +121,12 @@ bool kernelFpsReady(void);
  * @param newColour New colour of the runner or obstacle.
  */
 void kernelChangeNodeRedColour(protocol_packet_t newColourPacket);
+
+/**
+ * @brief 	Changes the colour of the runner.
+ * @param newColour New colour of the runner or obstacle.
+ */
+void kernelChangeRunnerColour(kernel_color_t newColour);
 
 /**
  * @brief Print debug message

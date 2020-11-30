@@ -89,6 +89,10 @@ static ws2812_pixel_t kernelRedPixel = {5, 0, 0};
 static ws2812_pixel_t kernelGreenPixel = {0, 5, 0};
 static ws2812_pixel_t kernelBluePixel = {0, 0, 5};
 
+static ws2812_pixel_t kernelCurrentRunnerPixel = {0, 5, 0};
+static ws2812_pixel_t kernelRunnerPixel = {0, 5, 0};
+static ws2812_pixel_t kernelTilePixel = {0, 0, 5};
+
 static kernel_event_t newColourEv; 
 
 /*******************************************************************************
@@ -131,6 +135,11 @@ void kernelInit(void)
   registerEventGenerator(&(kernelContext.eventQueue), nodeRedEvGen);
 }
 
+void kernelInitRunner(void)
+{
+  kernelCurrentRunnerPixel = kernelRunnerPixel;
+}
+
 void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPLAY_SIZE], uint8_t runnerPos)
 {
   for (uint8_t i=0; i<KERNEL_DISPLAY_SIZE; i++)
@@ -167,9 +176,9 @@ void kernelDisplay(const kernel_color_t matrix[KERNEL_DISPLAY_SIZE][KERNEL_DISPL
 
       if (i == 7 && j == runnerPos)
       {
-    	kernelDisplayMatrix[i][j].r = kernelGreenPixel.r;
-    	kernelDisplayMatrix[i][j].g = kernelGreenPixel.g;
-    	kernelDisplayMatrix[i][j].b = kernelGreenPixel.b;
+    	kernelDisplayMatrix[i][j].r = kernelCurrentRunnerPixel.r;
+    	kernelDisplayMatrix[i][j].g = kernelCurrentRunnerPixel.g;
+    	kernelDisplayMatrix[i][j].b = kernelCurrentRunnerPixel.b;
       }
     }
   }
@@ -209,15 +218,46 @@ void kernelChangeNodeRedColour(protocol_packet_t newColourPacket)
 {
   if (newColourPacket.topic == PROTOCOL_TOPIC_PLAYER_PIXEL)
   {
-    kernelGreenPixel.r = newColourPacket.data.pixel.r;
-    kernelGreenPixel.g = newColourPacket.data.pixel.g;
-    kernelGreenPixel.b = newColourPacket.data.pixel.b;
+    kernelCurrentRunnerPixel.r = kernelRunnerPixel.r = newColourPacket.data.pixel.r;
+    kernelCurrentRunnerPixel.g = kernelRunnerPixel.g = newColourPacket.data.pixel.g;
+    kernelCurrentRunnerPixel.b = kernelRunnerPixel.b = newColourPacket.data.pixel.b;
   }
   else if (newColourPacket.topic == PROTOCOL_TOPIC_OBSTACLE_PIXEL)
   {
     kernelBluePixel.r = newColourPacket.data.pixel.r;
     kernelBluePixel.g = newColourPacket.data.pixel.g;
     kernelBluePixel.b = newColourPacket.data.pixel.b;
+  }
+}
+
+void kernelChangeRunnerColour(kernel_color_t newColour)
+{
+  switch (newColour)
+  {
+    case KERNEL_BLACK: 
+    {
+      kernelCurrentRunnerPixel.r = kernelBlackPixel.r;
+      kernelCurrentRunnerPixel.g = kernelBlackPixel.g;
+      kernelCurrentRunnerPixel.b = kernelBlackPixel.b;
+    } break;
+    case KERNEL_RED: 
+    {
+      kernelCurrentRunnerPixel.r = kernelRedPixel.r;
+      kernelCurrentRunnerPixel.g = kernelRedPixel.g;
+      kernelCurrentRunnerPixel.b = kernelRedPixel.b;
+    } break;
+    case KERNEL_GREEN: 
+    {
+      kernelCurrentRunnerPixel.r = kernelGreenPixel.r;
+      kernelCurrentRunnerPixel.g = kernelGreenPixel.g;
+      kernelCurrentRunnerPixel.b = kernelGreenPixel.b;
+    } break;
+    case KERNEL_BLUE: 
+    {
+      kernelCurrentRunnerPixel.r = kernelBluePixel.r;
+      kernelCurrentRunnerPixel.g = kernelBluePixel.g;
+      kernelCurrentRunnerPixel.b = kernelBluePixel.b;
+    } break;
   }
 }
 

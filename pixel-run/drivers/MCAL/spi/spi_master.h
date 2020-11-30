@@ -95,9 +95,10 @@ typedef struct{
 /**
  * @brief SPI module initialization
  * @param id      SPI module id
+ * @param slave   Declares the slaves to be used with SPI
  * @param config  SPI configuration attributes 
  */
-void spiInit(spi_id_t id, spi_cfg_t config);
+void spiInit(spi_id_t id, spi_slave_id_t slave, spi_cfg_t config);
 
 /*********************
  * SPI SEND SERVICES *
@@ -108,7 +109,7 @@ void spiInit(spi_id_t id, spi_cfg_t config);
  *        can be selected with the following syntax:
  *        slave = SPI_SLAVE_0 | SPI_SLAVE_1 | SPI_SLAVE_4;
  * @param id      SPI module id
- * @param slave   The id of the slave to send the data
+ * @param slave   Slaves to be selected
  * @param message Message to be sent
  * @param len     Message length
  * @return Whether it could send or not
@@ -130,6 +131,7 @@ bool spiCanSend(spi_id_t id, size_t len);
 /**
  * @brief Request to receive from SPI a given amount of frames. Non blocking.
  * @param id    SPI module id
+ * @param slave   Slaves to be selected
  * @param len   Message length
  * @return Whether it could receive or not (needs to send len 0s)
  */
