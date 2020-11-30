@@ -38,7 +38,7 @@ using namespace std;
 
 // General application settings
 #define SERIAL_BAUD_RATE        9600
-#define DEBUG_MODE
+// #define DEBUG_MODE
 
 /***********************************
  * FUNCTION PROPOTYPES DECLARATION * 
@@ -149,7 +149,6 @@ void loop()
   if (Serial.available() > 0)
   {
     receivedByte = Serial.read();
-    Serial.println(receivedByte);
     protocolDecode(receivedByte);
     if (protocolHasPackets())
     {

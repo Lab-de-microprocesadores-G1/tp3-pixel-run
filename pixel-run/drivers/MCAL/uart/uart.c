@@ -202,8 +202,8 @@ void uartInit (uint8_t id, uart_cfg_t config)
   uartInstance->RWFIFO = uartInstances[id].rxFifoWatermark;
 
   // Save FIFO sizes
-  uartInstances[id].txFifoSize = 2 << ((uartInstance->PFIFO & UART_PFIFO_TXFIFOSIZE_MASK) >> UART_PFIFO_TXFIFOSIZE_SHIFT);
-  uartInstances[id].rxFifoSize = 2 << ((uartInstance->PFIFO & UART_PFIFO_RXFIFOSIZE_MASK) >> UART_PFIFO_RXFIFOSIZE_SHIFT);
+  uartInstances[id].txFifoSize = (uartInstance->PFIFO & UART_PFIFO_TXFIFOSIZE_MASK)? 2 << ((uartInstance->PFIFO & UART_PFIFO_TXFIFOSIZE_MASK) >> UART_PFIFO_TXFIFOSIZE_SHIFT) : 1;
+  uartInstances[id].rxFifoSize = (uartInstance->PFIFO & UART_PFIFO_RXFIFOSIZE_MASK)? 2 << ((uartInstance->PFIFO & UART_PFIFO_RXFIFOSIZE_MASK) >> UART_PFIFO_RXFIFOSIZE_SHIFT) : 1;
 
   // Configure pins on UART alternative
   for (uint8_t i = 0 ; i < UART_PIN_COUNT ; i++ )
@@ -297,7 +297,8 @@ uint8_t uartWriteMsg(uint8_t id, const word_t* msg, uint8_t length)
 	// Fill hardware FIFO, if empty, to start the process
 	if (uartPointers[id]->S1 & UART_S1_TDRE_MASK)
 	{
-		for ( i = 0 ; (i < txWords) && (i < (uartInstances[id].txFifoSize - uartPointers[id]->TCFIFO)) ; i++ )
+		uint8_t tcfifo = uartPointers[id]->TCFIFO;
+		for ( i = 0 ; (i < txWords) && (i < (uartInstances[id].txFifoSize - tcfifo)) ; i++ )
 		{
 			// Clear the flag
 			uartPointers[id]->S1;
