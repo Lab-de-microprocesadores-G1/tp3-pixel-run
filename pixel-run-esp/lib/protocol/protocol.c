@@ -86,6 +86,7 @@ static queue_t              packetQueue;
 static protocol_packet_t    currentPacket;
 static protocol_state_t     currentState;
 static uint8_t              currentByte;
+static protocol_status_t    currentStatus;
 
 /*******************************************************************************
  *******************************************************************************
@@ -100,6 +101,12 @@ void protocolInit(void)
 
     // Initialize protocol decode state
     currentState = PS_START;
+    currentStatus = PE_OK;
+}
+
+protocol_status_t protocolGetStatus(void)
+{
+    return currentStatus;
 }
 
 void protocolDecode(uint8_t data)
@@ -110,22 +117,26 @@ void protocolDecode(uint8_t data)
             if (data == PROTOCOL_START_BYTE)
             {
                 currentState = PS_TOPIC;
+                currentStatus = PE_OK;
             }
             break;
         case PS_TOPIC:
             if (data == PROTOCOL_ESCAPE_BYTE)
             {
                 currentState = PS_ESCAPE_TOPIC;
+                currentStatus = PE_OK;
             }
             else if (data < PROTOCOL_TOPIC_COUNT)
             {
                 currentByte = 0;
                 currentState = PS_DATA;
+                currentStatus = PE_OK;
                 currentPacket.topic = (protocol_topic_t)data;
             }
             else
             {
                 currentState = PS_START;
+                currentStatus = PE_UNKNOWN_TOPIC;
             }
             break;
         case PS_ESCAPE_TOPIC:
@@ -134,34 +145,41 @@ void protocolDecode(uint8_t data)
             {
                 currentByte = 0;
                 currentState = PS_DATA;
+                currentStatus = PE_UNKNOWN_TOPIC;
             }
             else
             {
                 currentState = PS_START;
+                currentStatus = PE_OK;
             }
             break;
         case PS_DATA:
             if (data == PROTOCOL_START_BYTE )
             {
                 currentState = PS_START;
+                currentStatus = PE_FORMAT_ERROR;
             }
             else if (data == PROTOCOL_STOP_BYTE)
             {
                 currentState = PS_START;
+                currentStatus = PE_OK;
                 push(&packetQueue, &currentPacket);
             }
             else if (data == PROTOCOL_ESCAPE_BYTE)
             {
                 currentState = PS_ESCAPE_DATA;
+                currentStatus = PE_OK;
             }
             else
             {
                 protocolDecodeData(data);
+                currentStatus = PE_OK;
             }
             break;
         case PS_ESCAPE_DATA:
             protocolDecodeData(protocolEscapeAlgorithm(data));
             currentState = PS_DATA;
+            currentStatus = PE_OK;
             break;
     }
 }
