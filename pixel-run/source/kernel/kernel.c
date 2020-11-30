@@ -232,7 +232,13 @@ void kernelPrint(uint8_t * msg, uint8_t len)
 void kernelLevelLed(uint8_t level)
 {
   serialLedSetNumber(level + 1);
+
+  protocol_packet_t packet;
+  packet.topic = PROTOCOL_TOPIC_LEVEL;
+  packet.data.level.level = level + 1;
+  nodeRedSendValue(packet);
 }
+
 /*******************************************************************************
  *******************************************************************************
                         LOCAL FUNCTION DEFINITIONS
