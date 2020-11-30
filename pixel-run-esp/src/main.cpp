@@ -72,9 +72,9 @@ protocol_pixel_data_t parsePixelData(byte* payload, unsigned int length);
 uint8_t       receivedByte;                       // Buffer for the next received byte
 uint8_t       buffer[PROTOCOL_MAX_SIZE];          // Buffer for the data to be transmitted via UART
 
-const char*   wifiSsid      = "Fibertel WiFi062 2.4GHz";
-const char*   wifiPassword  = "0141649034";
-IPAddress     ip(192, 168, 1, 12);               // IP Address of the MQTT Server 
+const char*   wifiSsid      = "Fibertel WiFi664 2.4GHz";
+const char*   wifiPassword  = "00438996458";
+IPAddress     ip(192, 168, 0, 119);               // IP Address of the MQTT Server
 // IPAddress     ip((const uint8_t*)"broker.mqtt-dashboard.com");    // IP Address of the MQTT Server
 uint16_t      port = 1883;                        // Port of the MQTT Server
 

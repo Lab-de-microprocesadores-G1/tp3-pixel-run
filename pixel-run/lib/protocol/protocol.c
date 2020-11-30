@@ -202,7 +202,7 @@ size_t protocolEncode(protocol_packet_t packet, uint8_t* encoded)
     // Create the standard protocol packet
     *(encoded++) = PROTOCOL_START_BYTE;
     *(encoded++) = packet.topic;
-    switch (currentPacket.topic)
+    switch (packet.topic)
     {
         case PROTOCOL_TOPIC_OBSTACLE_PIXEL:
         case PROTOCOL_TOPIC_PLAYER_PIXEL:
@@ -300,7 +300,7 @@ static size_t protocolEncodePixelData(protocol_pixel_data_t data, uint8_t* encod
 static size_t protocolEncodeLevelData(protocol_level_data_t data, uint8_t* encoded)
 {
 	*(encoded++) = data.level;
-	return sizeof(data);
+	return 1;
 }
 
 static uint8_t protocolEscapeAlgorithm(uint8_t data)
