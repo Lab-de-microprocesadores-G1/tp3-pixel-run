@@ -9,7 +9,7 @@
  ******************************************************************************/
 
 #include "protocol.h"
-#include "queue.h"
+#include "../queue/queue.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -51,6 +51,7 @@ typedef enum {
  */
 static void protocolDecodeData(uint8_t data);
 static void protocolDecodePixelData(uint8_t data);
+static void protocolDecodeLevelData(uint8_t data);
 
 /**
  * @brief Encodes pixel data
@@ -58,6 +59,13 @@ static void protocolDecodePixelData(uint8_t data);
  * @param encode    Pointer of the result
  */
 static size_t protocolEncodePixelData(protocol_pixel_data_t data, uint8_t* encoded);
+
+/**
+ * @brief Encodes level data
+ * @param data      Data to be encoded
+ * @param encode    Pointer of the result
+ */
+static size_t protocolEncodeLevelData(protocol_level_data_t data, uint8_t* encoded);
 
 /*
  * @brief Applies the escaping algorithm to a byte received or sent
@@ -78,6 +86,7 @@ static queue_t              packetQueue;
 static protocol_packet_t    currentPacket;
 static protocol_state_t     currentState;
 static uint8_t              currentByte;
+static protocol_status_t    currentStatus;
 
 /*******************************************************************************
  *******************************************************************************
@@ -92,6 +101,12 @@ void protocolInit(void)
 
     // Initialize protocol decode state
     currentState = PS_START;
+    currentStatus = PE_OK;
+}
+
+protocol_status_t protocolGetStatus(void)
+{
+    return currentStatus;
 }
 
 void protocolDecode(uint8_t data)
@@ -102,22 +117,26 @@ void protocolDecode(uint8_t data)
             if (data == PROTOCOL_START_BYTE)
             {
                 currentState = PS_TOPIC;
+                currentStatus = PE_OK;
             }
             break;
         case PS_TOPIC:
             if (data == PROTOCOL_ESCAPE_BYTE)
             {
                 currentState = PS_ESCAPE_TOPIC;
+                currentStatus = PE_OK;
             }
             else if (data < PROTOCOL_TOPIC_COUNT)
             {
                 currentByte = 0;
                 currentState = PS_DATA;
+                currentStatus = PE_OK;
                 currentPacket.topic = (protocol_topic_t)data;
             }
             else
             {
                 currentState = PS_START;
+                currentStatus = PE_UNKNOWN_TOPIC;
             }
             break;
         case PS_ESCAPE_TOPIC:
@@ -126,34 +145,41 @@ void protocolDecode(uint8_t data)
             {
                 currentByte = 0;
                 currentState = PS_DATA;
+                currentStatus = PE_UNKNOWN_TOPIC;
             }
             else
             {
                 currentState = PS_START;
+                currentStatus = PE_OK;
             }
             break;
         case PS_DATA:
             if (data == PROTOCOL_START_BYTE )
             {
                 currentState = PS_START;
+                currentStatus = PE_FORMAT_ERROR;
             }
             else if (data == PROTOCOL_STOP_BYTE)
             {
                 currentState = PS_START;
+                currentStatus = PE_OK;
                 push(&packetQueue, &currentPacket);
             }
             else if (data == PROTOCOL_ESCAPE_BYTE)
             {
                 currentState = PS_ESCAPE_DATA;
+                currentStatus = PE_OK;
             }
             else
             {
                 protocolDecodeData(data);
+                currentStatus = PE_OK;
             }
             break;
         case PS_ESCAPE_DATA:
             protocolDecodeData(protocolEscapeAlgorithm(data));
             currentState = PS_DATA;
+            currentStatus = PE_OK;
             break;
     }
 }
@@ -181,6 +207,9 @@ size_t protocolEncode(protocol_packet_t packet, uint8_t* encoded)
         case PROTOCOL_TOPIC_OBSTACLE_PIXEL:
         case PROTOCOL_TOPIC_PLAYER_PIXEL:
             encoded += protocolEncodePixelData(packet.data.pixel, encoded);
+            break;
+        case PROTOCOL_TOPIC_LEVEL:
+            encoded += protocolEncodeLevelData(packet.data.level, encoded);
             break;
         default:
             break;
@@ -228,6 +257,9 @@ static void protocolDecodeData(uint8_t data)
         case PROTOCOL_TOPIC_PLAYER_PIXEL:
             protocolDecodePixelData(data);
             break;
+        case PROTOCOL_TOPIC_LEVEL:
+        	protocolDecodeLevelData(data);
+        	break;
         default:
             break;
     }
@@ -252,12 +284,23 @@ static void protocolDecodePixelData(uint8_t data)
     }
 }
 
+static void protocolDecodeLevelData(uint8_t data)
+{
+	currentPacket.data.level.level = data;
+}
+
 static size_t protocolEncodePixelData(protocol_pixel_data_t data, uint8_t* encoded)
 {
     *(encoded++) = data.r;
     *(encoded++) = data.g;
     *(encoded++) = data.b;
     return sizeof(data);
+}
+
+static size_t protocolEncodeLevelData(protocol_level_data_t data, uint8_t* encoded)
+{
+	*(encoded++) = data.level;
+	return sizeof(data);
 }
 
 static uint8_t protocolEscapeAlgorithm(uint8_t data)
